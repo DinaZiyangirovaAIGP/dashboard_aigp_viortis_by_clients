@@ -312,17 +312,19 @@
       <div class="table-scroll">
         <table>
           <colgroup>
-            <col style="width:45%">
-            <col style="width:17%">
-            <col style="width:17%">
-            <col style="width:21%">
+            <col style="width:38%">
+            <col style="width:15%">
+            <col style="width:15%">
+            <col style="width:16%">
+            <col style="width:16%">
           </colgroup>
           <thead>
             <tr>
               <th>Клиент</th>
               <th style="color:#4f8ef7">AIGP</th>
               <th style="color:#a78bfa">Viortis</th>
-              <th>DIFF vs V</th>
+              <th style="border-left:1px solid var(--border);color:var(--muted)">DIFF abs</th>
+              <th style="color:var(--muted)">DIFF %</th>
             </tr>
           </thead>
           <tbody id="clientTbody"></tbody>
@@ -339,17 +341,19 @@
       <div class="table-scroll">
         <table>
           <colgroup>
-            <col style="width:45%">
-            <col style="width:17%">
-            <col style="width:17%">
-            <col style="width:21%">
+            <col style="width:38%">
+            <col style="width:15%">
+            <col style="width:15%">
+            <col style="width:16%">
+            <col style="width:16%">
           </colgroup>
           <thead>
             <tr>
               <th>SKU</th>
               <th style="color:#4f8ef7">AIGP</th>
               <th style="color:#a78bfa">Viortis</th>
-              <th>DIFF vs V</th>
+              <th style="border-left:1px solid var(--border);color:var(--muted)">DIFF abs</th>
+              <th style="color:var(--muted)">DIFF %</th>
             </tr>
           </thead>
           <tbody id="skuTbody"></tbody>
@@ -554,19 +558,14 @@ function renderKPI(data) {
   `;
 }
 
-function diffCell(a, v) {
+// Returns [absTd, pctTd] as HTML strings
+function diffCells(a, v) {
   const d = a - v;
   const pct = ppg(a, v);
-  const cls = d > 0 ? 'pos-text' : d < 0 ? 'neg-text' : 'neutral-text';
-  const barPct = Math.min(Math.abs(pct), 100);
-  const barColor = d > 0 ? '#34d399' : d < 0 ? '#f87171' : '#6b7194';
-  return `<div class="diff-cell">
-    <span class="${cls}">${sign(d)}${fmtFull(d)}</span>
-    <div style="display:flex;flex-direction:column;gap:1px;align-items:flex-end">
-      <div class="diff-bar-wrap"><div class="diff-bar" style="width:${barPct}%;background:${barColor}"></div></div>
-      <span style="font-size:9px;color:${barColor}">${sign(pct)}${pct.toFixed(1)}%</span>
-    </div>
-  </div>`;
+  const clr = d > 0 ? '#34d399' : d < 0 ? '#f87171' : '#6b7194';
+  const absTd = `<td style="border-left:1px solid var(--border);color:${clr};text-align:right">${sign(d)}${fmtFull(d)}</td>`;
+  const pctTd = `<td style="color:${clr};text-align:right">${sign(pct)}${pct.toFixed(1)}%</td>`;
+  return absTd + pctTd;
 }
 
 function renderClientTable(data) {
@@ -591,7 +590,7 @@ function renderClientTable(data) {
       <td title="${c}">${c}</td>
       <td>${fmtFull(a)}</td>
       <td>${fmtFull(v)}</td>
-      <td>${diffCell(a, v)}</td>
+      ${diffCells(a, v)}
     </tr>`;
   });
   // Total row
@@ -599,7 +598,7 @@ function renderClientTable(data) {
     <td>ИТОГО</td>
     <td>${fmtFull(totA)}</td>
     <td>${fmtFull(totV)}</td>
-    <td>${diffCell(totA, totV)}</td>
+    ${diffCells(totA, totV)}
   </tr>`;
 
   document.getElementById('clientTbody').innerHTML = html;
@@ -627,14 +626,14 @@ function renderSkuTable(data) {
       <td title="${s}">${s}</td>
       <td>${fmtFull(a)}</td>
       <td>${fmtFull(v)}</td>
-      <td>${diffCell(a, v)}</td>
+      ${diffCells(a, v)}
     </tr>`;
   });
   html += `<tr class="total-row">
     <td>ИТОГО</td>
     <td>${fmtFull(totA)}</td>
     <td>${fmtFull(totV)}</td>
-    <td>${diffCell(totA, totV)}</td>
+    ${diffCells(totA, totV)}
   </tr>`;
 
   document.getElementById('skuTbody').innerHTML = html;
